@@ -1,7 +1,11 @@
+require_relative "tile.rb"
+require_relative "board"
+
 class Minesweeper
+  attr_reader :board
+
   def initialize
     @board = Board.new
-
   end
 
   def play
@@ -9,13 +13,34 @@ class Minesweeper
   end
 
   def play_turn
+    system('clear')
+    @board.render
     puts "Enter position to guess: (x,y)"
     pos = gets.chomp.split(",").map(&:to_i)
-    if valid_pos?(pos)
-      
+    begin
+      if valid_pos?(pos)
+        flag_or_reveal(pos)
+      else
+        puts "Put a valid pos"
+        play_turn
+      end
+    rescue => e 
+      puts e 
+      retry 
+    end
+  end
+
+  def flag_or_reveal(pos)
+    puts "[F]lag or [R]eveal?"
+    action = gets.chomp.downcase
+    case action 
+    when "f" 
+        board.flag(pos)
+    when "r" 
+        board.reveal(pos)
     else
-      puts "Put a valid pos"
-      play_turn
+        puts "invalid input"
+        flag_or_reveal(pos)
     end
   end
 
@@ -29,6 +54,7 @@ class Minesweeper
   end
 
   def game_over?
+    puts "BOOM!!!!"
     @board.game_over?
   end
 
